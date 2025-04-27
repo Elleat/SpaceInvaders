@@ -1,0 +1,186 @@
+﻿@page
+@model Space_Invaders.Pages.ScoresModel
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Таблица рекордов - Space Invaders</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #0a0a1a;
+            color: #fff;
+            margin: 0;
+            padding: 0;
+            background-image: radial-gradient(circle at center, #1a1a3a 0%, #0a0a1a 100%);
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 2rem;
+            text-align: center;
+        }
+
+        h1 {
+            color: #3a3aff;
+            text-shadow: 0 0 10px rgba(58, 58, 255, 0.7);
+            margin-bottom: 2rem;
+        }
+
+        .scores-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 2rem 0;
+            background-color: rgba(20, 20, 50, 0.8);
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 0 20px rgba(58, 58, 255, 0.3);
+        }
+
+            .scores-table th, .scores-table td {
+                padding: 1rem;
+                text-align: center;
+                border-bottom: 1px solid #3a3aff;
+            }
+
+            .scores-table th {
+                background-color: rgba(58, 58, 255, 0.3);
+                color: #fff;
+                font-size: 1.1rem;
+            }
+
+            .scores-table tr:nth-child(even) {
+                background-color: rgba(58, 58, 255, 0.1);
+            }
+
+            .scores-table tr:hover {
+                background-color: rgba(58, 58, 255, 0.2);
+            }
+
+        .medal {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            margin-right: 10px;
+            vertical-align: middle;
+        }
+
+        .gold {
+            color: gold;
+        }
+
+        .silver {
+            color: silver;
+        }
+
+        .bronze {
+            color: #cd7f32;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 0.8rem 1.5rem;
+            background-color: #3a3aff;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            font-weight: bold;
+            margin: 0.5rem;
+            transition: all 0.3s;
+            border: none;
+            cursor: pointer;
+            font-size: 1rem;
+            box-shadow: 0 0 10px rgba(58, 58, 255, 0.5);
+        }
+
+            .btn:hover {
+                background-color: #5a5aff;
+                transform: translateY(-2px);
+                box-shadow: 0 0 15px rgba(58, 58, 255, 0.8);
+            }
+
+        .no-scores {
+            color: #aaa;
+            font-style: italic;
+            margin: 2rem 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Таблица рекордов</h1>
+
+        @if (Model.HighScores.Count > 0)
+        {
+            <table class="scores-table">
+                <thead>
+                    <tr>
+                        <th>Место</th>
+                        <th>Игрок</th>
+                        <th>Счет</th>
+                        <th>Дата</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @{
+                        // Сортируем по убыванию счета
+                        var sortedScores = Model.HighScores.OrderByDescending(s => s.Score).ToList();
+                    }
+                    @for (int i = 0; i < sortedScores.Count; i++)
+                    {
+                        var score = sortedScores[i];
+                        <tr>
+                            <td>
+                                @if (i == 0)
+                                {
+                                    <span class="medal gold">🥇</span>
+                                }
+                                else if (i == 1)
+                                {
+                                    <span class="medal silver">🥈</span>
+                                }
+                                else if (i == 2)
+                                {
+                                    <span class="medal bronze">🥉</span>
+                                }
+                                @(i + 1)
+                            </td>
+                            <td>@score.PlayerName</td>
+                            <td>@score.Score</td>
+                            <td>@score.Date.ToString("dd.MM.yyyy")</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+        else
+        {
+            <p class="no-scores">Пока нет сохраненных результатов</p>
+        }
+
+        <div style="margin-top: 2rem;">
+            <a href="/" class="btn">Главное меню</a>
+            <a href="/SpaceInvaders" class="btn">Играть снова</a>
+        </div>
+    </div>
+
+    <script>
+        // Проверяем localStorage на наличие результатов
+        document.addEventListener('DOMContentLoaded', function () {
+            const localScores = JSON.parse(localStorage.getItem('spaceInvadersScores') || [];
+
+            if (localScores.length > 0 && @Model.HighScores.Count == 0) {
+                // Можно отобразить локальные результаты
+                console.log('Найдены локальные результаты:', localScores);
+
+                // Здесь можно добавить логику отображения результатов из localStorage
+                // Например, отправить их на сервер или показать в интерфейсе
+            }
+        });
+    </script>
+</body>
+</html>

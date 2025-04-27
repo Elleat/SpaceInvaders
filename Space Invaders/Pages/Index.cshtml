@@ -1,0 +1,262 @@
+﻿@page
+@model IndexModel
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Space Invaders</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #0a0a1a;
+            color: #fff;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            background-image: radial-gradient(circle at center, #1a1a3a 0%, #0a0a1a 100%);
+        }
+
+        .container {
+            max-width: 800px;
+            padding: 2rem;
+            text-align: center;
+        }
+
+        h1 {
+            color: #3a3aff;
+            text-shadow: 0 0 10px rgba(58, 58, 255, 0.7);
+            margin-bottom: 2rem;
+            font-size: 2.5rem;
+        }
+
+        .game-card {
+            background-color: rgba(20, 20, 50, 0.8);
+            border-radius: 10px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 0 20px rgba(58, 58, 255, 0.3);
+            border: 1px solid #3a3aff;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin: 2rem 0;
+        }
+
+        .control-group {
+            text-align: center;
+        }
+
+        .key {
+            display: inline-block;
+            width: 50px;
+            height: 50px;
+            background-color: #1a1a3a;
+            border: 2px solid #3a3aff;
+            border-radius: 5px;
+            color: #fff;
+            font-size: 1.5rem;
+            line-height: 50px;
+            margin: 0.5rem;
+            box-shadow: 0 0 10px rgba(58, 58, 255, 0.5);
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 0.8rem 1.5rem;
+            background-color: #3a3aff;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            font-weight: bold;
+            margin: 0.5rem;
+            transition: all 0.3s;
+            border: none;
+            cursor: pointer;
+            font-size: 1rem;
+            box-shadow: 0 0 10px rgba(58, 58, 255, 0.5);
+        }
+
+            .btn:hover {
+                background-color: #5a5aff;
+                transform: translateY(-2px);
+                box-shadow: 0 0 15px rgba(58, 58, 255, 0.8);
+            }
+
+        .btn-secondary {
+            background-color: transparent;
+            border: 2px solid #3a3aff;
+        }
+
+        .description {
+            margin: 1.5rem 0;
+            line-height: 1.6;
+        }
+
+        .links {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        footer {
+            margin-top: 2rem;
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        /* Стили для раздела правил */
+        .game-card h3 {
+            color: #3a3aff;
+            margin-bottom: 0.5rem;
+            font-size: 1.2rem;
+            text-shadow: 0 0 5px rgba(58, 58, 255, 0.3);
+        }
+
+        .game-card ul {
+            margin: 0.5rem 0 1.5rem;
+            text-align: left;
+            padding-left: 1.5rem;
+        }
+
+        .game-card li {
+            margin-bottom: 0.5rem;
+            position: relative;
+            padding-left: 1rem;
+        }
+
+            .game-card li:before {
+                content: "•";
+                color: #3a3aff;
+                position: absolute;
+                left: 0;
+            }
+
+        .game-elements {
+            display: flex;
+            justify-content: space-around;
+            flex-wrap: wrap;
+            margin: 1rem 0;
+        }
+
+        .game-element {
+            text-align: center;
+            margin: 1rem;
+            min-width: 80px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Космический Шутер</h1>
+
+        <div class="game-card">
+            <h2>Добро пожаловать в игру!</h2>
+            <p class="description">
+                Сразитесь с волнами вражеских кораблей в этой захватывающей аркадной игре.
+                Набирайте очки, уничтожая врагов, и попытайтесь попасть в таблицу рекордов!
+            </p>
+
+            <div class="links">
+                <a href="/SpaceInvaders" class="btn">Начать игру</a>
+                <a href="/Scores" class="btn btn-secondary">Таблица рекордов</a>
+            </div>
+        </div>
+
+        <div class="game-card">
+            <h2>Управление</h2>
+
+            <div class="controls">
+                <div class="control-group">
+                    <div class="key">←</div>
+                    <div>Влево</div>
+                </div>
+                <div class="control-group">
+                    <div class="key">→</div>
+                    <div>Вправо</div>
+                </div>
+                <div class="control-group">
+                    <div class="key" style="width: 80px; font-size: 1.2rem;">Пробел</div>
+                    <div>Стрельба</div>
+                </div>
+            </div>
+
+            <p class="description">
+                Используйте клавиши стрелок для перемещения корабля и пробел для стрельбы.
+                Избегайте столкновений с врагами и не дайте им прорваться через вашу линию обороны!
+            </p>
+        </div>
+
+        <div class="game-card">
+            <h2>Игровые элементы</h2>
+
+            <div class="game-elements">
+                <div class="game-element">
+                    <div style="width: 50px; height: 30px; background: #00FF00; margin: 0 auto 0.5rem;"></div>
+                    <div>Ваш корабль</div>
+                </div>
+
+                <div class="game-element">
+                    <div style="width: 40px; height: 20px; background: #FF0000; border-radius: 5px; margin: 0 auto 0.5rem;"></div>
+                    <div>Вражеский корабль</div>
+                </div>
+
+                <div class="game-element">
+                    <div style="width: 8px; height: 20px; background: #FFFF00; margin: 0 auto 0.5rem;"></div>
+                    <div>Ваша пуля</div>
+                </div>
+
+                <div class="game-element">
+                    <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MCA1MCI+PHJlY3QgeD0iMTAiIHk9IjEwIiB3aWR0aD0iMzAiIGhlaWdodD0iMzAiIGZpbGw9IiMwMEZGRkYiIHN0cm9rZT0iIzAwQ0NDQyIgc3Ryb2tlLXdpZHRoPSIyIi8+PHRleHQgeD0iMjUiIHk9IjMwIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iMTQiIGZpbGw9IiMwMDAwMDAiIHRleHQtYW5jaG9yPSJtaWRkbGUiPjU8L3RleHQ+PC9zdmc+" style="width: 30px; height: 30px; margin: 0 auto 0.5rem;">
+                    <div>Пачка патронов</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="game-card">
+            <h2>Правила игры</h2>
+
+            <div class="description">
+                <h3>Система патронов:</h3>
+                <ul>
+                    <li>У вас ограниченный боезапас - <strong>5 патронов</strong> в начале игры</li>
+                    <li>Каждый выстрел расходует 1 патрон</li>
+                    <li>Уничтоженные враги иногда оставляют <strong>пачки патронов</strong> (по 5 штук)</li>
+                    <li>Подбирайте пачки, пролетая над ними</li>
+                    <li>Когда патроны заканчиваются, вы не можете стрелять</li>
+                </ul>
+
+                <h3 style="margin-top: 1.5rem;">Сбегающие враги:</h3>
+                <ul>
+                    <li>Если враг достигает нижней границы экрана - он <strong>сбегает</strong></li>
+                    <li>Каждые <strong>3 сбежавших врага</strong> отнимают у вас 1 жизнь</li>
+                    <li>Всего у вас <strong>3 жизни</strong></li>
+                    <li>Столкновение с врагом мгновенно уничтожает ваш корабль</li>
+                    <li>Чем дольше вы играете, тем больше врагов и тем они быстрее</li>
+                </ul>
+
+                <h3 style="margin-top: 1.5rem;">Советы:</h3>
+                <ul>
+                    <li>Старайтесь стрелять точно - каждый патрон на счету</li>
+                    <li>Сначала уничтожайте врагов, которые ближе к нижней границе</li>
+                    <li>Собирайте пачки патронов, когда у вас меньше половины боезапаса</li>
+                    <li>Управление кораблем имеет инерцию - учитывайте это при маневрировании</li>
+                </ul>
+            </div>
+        </div>
+
+        <footer>
+            &copy; @DateTime.Now.Year Космический Шутер
+        </footer>
+    </div>
+</body>
+</html>

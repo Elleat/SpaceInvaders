@@ -1,0 +1,738 @@
+﻿@page
+@model IndexModel
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Space Invaders</title>
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            background: #000;
+        }
+
+        #gameCanvas {
+            display: block;
+            width: 100vw;
+            height: 100vh;
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+
+        #gameBorder {
+            position: absolute;
+            border: 4px solid rgba(58, 58, 255, 0.7);
+            border-radius: 8px;
+            box-sizing: border-box;
+            pointer-events: none;
+            z-index: 10;
+            box-shadow: 0 0 15px rgba(58, 58, 255, 0.5);
+        }
+
+        #scoreDisplay {
+            position: absolute;
+            color: white;
+            top: 20px;
+            left: 20px;
+            font-size: 24px;
+            z-index: 100;
+            font-family: 'Arial', sans-serif;
+            text-shadow: 0 0 5px #3a3aff;
+        }
+
+        #gameOverMenu {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: rgba(20, 20, 50, 0.9);
+            padding: 2rem;
+            border-radius: 10px;
+            text-align: center;
+            z-index: 200;
+            display: none;
+            border: 2px solid #3a3aff;
+            box-shadow: 0 0 20px rgba(58, 58, 255, 0.5);
+        }
+
+        #gameOverText {
+            color: white;
+            font-size: 2rem;
+            margin-bottom: 1.5rem;
+            text-shadow: 0 0 10px #3a3aff;
+        }
+
+        #finalScore {
+            color: #ffff00;
+            font-size: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .menu-button {
+            display: inline-block;
+            padding: 0.8rem 1.5rem;
+            background-color: #3a3aff;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            font-weight: bold;
+            margin: 0.5rem;
+            transition: all 0.3s;
+            border: none;
+            cursor: pointer;
+            font-size: 1rem;
+            box-shadow: 0 0 10px rgba(58, 58, 255, 0.5);
+        }
+
+            .menu-button:hover {
+                background-color: #5a5aff;
+                transform: translateY(-2px);
+                box-shadow: 0 0 15px rgba(58, 58, 255, 0.8);
+            }
+
+            .menu-button.secondary {
+                background-color: transparent;
+                border: 2px solid #3a3aff;
+            }
+
+        /* Диалог выбора действий */
+        #actionDialog {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: rgba(20, 20, 50, 0.95);
+            padding: 2rem;
+            border-radius: 10px;
+            text-align: center;
+            z-index: 300;
+            display: none;
+            border: 2px solid #3a3aff;
+            box-shadow: 0 0 20px rgba(58, 58, 255, 0.5);
+            width: 300px;
+        }
+
+        /* Диалог ввода имени */
+        #nameInputDialog {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: rgba(20, 20, 50, 0.95);
+            padding: 2rem;
+            border-radius: 10px;
+            text-align: center;
+            z-index: 400;
+            display: none;
+            border: 2px solid #3a3aff;
+            box-shadow: 0 0 20px rgba(58, 58, 255, 0.5);
+            width: 300px;
+        }
+
+            #nameInputDialog input {
+                width: 100%;
+                padding: 0.8rem;
+                margin-bottom: 1rem;
+                background: rgba(0,0,0,0.5);
+                border: 1px solid #3a3aff;
+                color: white;
+                border-radius: 5px;
+                font-size: 1rem;
+            }
+
+        .dialog-title {
+            color: white;
+            margin-bottom: 1.5rem;
+            text-shadow: 0 0 5px #3a3aff;
+            font-size: 1.5rem;
+        }
+
+        .action-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        #ammoDisplay {
+            position: absolute;
+            color: white;
+            top: 20px;
+            right: 20px;
+            font-size: 24px;
+            z-index: 100;
+            font-family: 'Arial', sans-serif;
+            text-shadow: 0 0 5px #3a3aff;
+        }
+    </style>
+</head>
+<body>
+    <div id="scoreDisplay">Счет: 0</div>
+    <div id="ammoDisplay">Патроны: 5</div>
+    <div id="gameBorder"></div>
+    <canvas id="gameCanvas"></canvas>
+
+    <img id="ammoPackImg" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MCA1MCI+PHJlY3QgeD0iMTAiIHk9IjEwIiB3aWR0aD0iMzAiIGhlaWdodD0iMzAiIGZpbGw9IiMwMEZGRkYiIHN0cm9rZT0iIzAwQ0NDQyIgc3Ryb2tlLXdpZHRoPSIyIi8+PHRleHQgeD0iMjUiIHk9IjMwIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iMTQiIGZpbGw9IiMwMDAwMDAiIHRleHQtYW5jaG9yPSJtaWRkbGUiPjU8L3RleHQ+PC9zdmc+" style="display: none;">
+
+    <div id="gameOverMenu">
+        <div id="gameOverText">Игра окончена!</div>
+        <div id="finalScore">Ваш счет: 0</div>
+    </div>
+
+    <div id="nameInputDialog">
+        <div class="dialog-title">Введите ваше имя</div>
+        <input type="text" id="playerNameInput" placeholder="Ваше имя" maxlength="20">
+        <div class="action-buttons">
+            <button id="saveScoreBtn" class="menu-button">Сохранить результат</button>
+            <button id="cancelSaveBtn" class="menu-button secondary">Отмена</button>
+        </div>
+    </div>
+
+    <div id="actionDialog">
+        <div class="dialog-title">Выберите действие</div>
+        <div class="action-buttons">
+            <button id="playAgainBtn" class="menu-button">Играть снова</button>
+            <button id="saveResultBtn" class="menu-button">Сохранить результат</button>
+            <button id="viewScoresBtn" class="menu-button secondary">Таблица рекордов</button>
+            <button id="mainMenuBtn" class="menu-button secondary">Главное меню</button>
+        </div>
+    </div>
+
+    <script>
+        // Инициализация элементов
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const gameBorder = document.getElementById('gameBorder');
+        const scoreElement = document.getElementById('scoreDisplay');
+        const ammoElement = document.getElementById('ammoDisplay');
+        const gameOverMenu = document.getElementById('gameOverMenu');
+        const finalScoreElement = document.getElementById('finalScore');
+        const actionDialog = document.getElementById('actionDialog');
+        const nameInputDialog = document.getElementById('nameInputDialog');
+        const ammoPackImg = document.getElementById('ammoPackImg');
+
+        // Настройки игры
+        const gameSettings = {
+            borderMargin: 0.08,
+            playerWidth: 0.05,
+            playerHeight: 0.03,
+            controllerDeadzone: 0.0001, // Минимальная скорость, при которой игрок считается движущимся
+            controllerSensitivity: 1.5,   // Чувствительность управления
+            playerAcceleration: 0.0005, // Ускорение игрока
+            playerDeceleration: 0.0008, // Замедление игрока
+            playerMaxSpeed: 0.0025, // Максимальная скорость
+            playerSpeed: 0.002,
+            enemySize: 0.04,
+            enemySpeed: 0.001,
+            bulletWidth: 0.008,
+            bulletHeight: 0.02,
+            bulletSpeed: 0.015,
+            spawnRate: 0.01,
+            initialAmmo: 5,
+            ammoDropCount: 5,
+            ammoPackSize: 30,
+            ammoFallSpeed: 0.005,
+            ammoPickupRadius: 50,
+            playerLives: 3, // 3 жизни у игрока
+            maxEnemies: 1, // Начальное максимальное количество врагов
+            difficultyStages: [ // Стадии сложности (время в секундах, макс. врагов)
+                { time: 5, maxEnemies: 2 },
+                { time: 10, maxEnemies: 3 },
+                { time: 20, maxEnemies: 3 },
+                { time: 30, maxEnemies: 4 },
+                { time: 50, maxEnemies: 5 },
+                { time: 100, maxEnemies: 6 },
+                { time: 150, maxEnemies: 7 }
+            ]
+
+        };
+
+        // Игровые переменные
+        let playerLives = gameSettings.playerLives;
+        let escapedEnemies = 0; // Счетчик врагов, дошедших до низа
+        let gameStartTime = Date.now();
+        let player = {};
+        let enemies = [];
+        let bullets = [];
+        let ammoPacks = []; // Теперь храним пачки патронов
+        let score = 0;
+        let ammo = gameSettings.initialAmmo;
+        let gameRunning = true;
+        let gameArea = {
+            x: 0,
+            y: 0,
+            width: 0,
+            height: 0
+        };
+        let lastDifficultyIncrease = 0;
+        let currentDifficulty = 1;
+
+        // Обновляем отображение жизней
+        const livesElement = document.createElement('div');
+        livesElement.id = 'livesDisplay';
+        livesElement.style.position = 'absolute';
+        livesElement.style.color = 'white';
+        livesElement.style.top = '60px';
+        livesElement.style.left = '20px';
+        livesElement.style.fontSize = '24px';
+        livesElement.style.zIndex = '100';
+        livesElement.style.fontFamily = 'Arial, sans-serif';
+        livesElement.style.textShadow = '0 0 5px #3a3aff';
+        document.body.appendChild(livesElement);
+
+        function updateLivesDisplay() {
+            livesElement.textContent = `Жизни: ${playerLives}`;
+        }
+
+        // Функция обновления сложности
+        function updateDifficulty() {
+            const currentTime = (Date.now() - gameStartTime) / 1000; // Время в секундах
+            let newMaxEnemies = 1;
+
+            // Находим текущую стадию сложности
+            for (const stage of gameSettings.difficultyStages) {
+                if (currentTime >= stage.time) {
+                    newMaxEnemies = stage.maxEnemies;
+                } else {
+                    break;
+                }
+            }
+
+            gameSettings.maxEnemies = newMaxEnemies;
+        }
+
+        function initGameObjects() {
+            gameArea = {
+                x: canvas.width * gameSettings.borderMargin,
+                y: canvas.height * gameSettings.borderMargin,
+                width: canvas.width * (1 - 2 * gameSettings.borderMargin),
+                height: canvas.height * (1 - 2 * gameSettings.borderMargin)
+            };
+
+            gameBorder.style.width = `${gameArea.width}px`;
+            gameBorder.style.height = `${gameArea.height}px`;
+            gameBorder.style.left = `${gameArea.x}px`;
+            gameBorder.style.top = `${gameArea.y}px`;
+
+            player = {
+                x: gameArea.x + gameArea.width / 2,
+                y: gameArea.y + gameArea.height - (gameArea.height * gameSettings.playerHeight),
+                width: gameArea.width * gameSettings.playerWidth,
+                height: gameArea.height * gameSettings.playerHeight,
+                speedX: 0, // Текущая горизонтальная скорость
+                minX: gameArea.x,
+                maxX: gameArea.x + gameArea.width - (gameArea.width * gameSettings.playerWidth),
+                acceleration: gameArea.width * gameSettings.playerAcceleration,
+                deceleration: gameArea.width * gameSettings.playerDeceleration,
+                maxSpeed: gameArea.width * gameSettings.playerMaxSpeed
+            };
+
+            // Сброс переменных сложности
+            lastDifficultyIncrease = Date.now();
+            currentDifficulty = 1;
+        }
+
+
+        // Создание врага с учетом текущей сложности
+        function createEnemy() {
+            // Проверяем, можно ли создать нового врага
+            if (enemies.length >= gameSettings.maxEnemies) return;
+
+            const width = canvas.width * gameSettings.enemySize; // Ширина остается прежней
+            const height = width / 2; // Высота в 2 раза меньше ширины
+            const baseSpeed = canvas.height * gameSettings.enemySpeed;
+
+            enemies.push({
+                x: gameArea.x + Math.random() * (gameArea.width - width),
+                y: gameArea.y,
+                width: width,
+                height: height, // Используем новую высоту
+                speed: baseSpeed * (0.8 + currentDifficulty * 0.2),
+                health: Math.floor(currentDifficulty)
+            });
+        }
+
+        // Выстрел (только если есть патроны)
+        function shoot() {
+            if (ammo <= 0) return;
+
+            bullets.push({
+                x: player.x + player.width / 2 - (canvas.width * gameSettings.bulletWidth / 2),
+                y: player.y,
+                width: canvas.width * gameSettings.bulletWidth,
+                height: canvas.height * gameSettings.bulletHeight,
+                speed: canvas.height * gameSettings.bulletSpeed,
+                damage: 1 + Math.floor(currentDifficulty / 3)
+            });
+
+            ammo--;
+            updateAmmoDisplay();
+        }
+
+        // Создание пачки патронов на месте убитого врага
+        function createAmmoPack(x, y) {
+            ammoPacks.push({
+                x: x,
+                y: y,
+                width: gameSettings.ammoPackSize,
+                height: gameSettings.ammoPackSize,
+                count: gameSettings.ammoDropCount
+            });
+        }
+
+        // Движение пачки патронов к игроку
+        function moveAmmoPacks() {
+            for (let i = ammoPacks.length - 1; i >= 0; i--) {
+                const pack = ammoPacks[i];
+
+                // Просто двигаем пачку вниз с постоянной скоростью
+                pack.y += canvas.height * gameSettings.ammoFallSpeed; // В 2 раза медленнее врагов
+
+                // Удаляем пачку, если она вышла за пределы игровой зоны
+                if (pack.y > gameArea.y + gameArea.height) {
+                    ammoPacks.splice(i, 1);
+                }
+            }
+        }
+
+        // Проверка столкновений
+        function checkCollisions() {
+            // Проверка врагов, дошедших до низа
+            for (let i = enemies.length - 1; i >= 0; i--) {
+                if (enemies[i].y > gameArea.y + gameArea.height) {
+                    escapedEnemies++;
+                    enemies.splice(i, 1);
+
+                    // Проверяем, не слишком ли много врагов прошло
+                    if (escapedEnemies >= 3) {
+                        playerLives--;
+                        updateLivesDisplay();
+                        escapedEnemies = 0;
+
+                        if (playerLives <= 0) {
+                            gameOver();
+                            return;
+                        }
+                    }
+                }
+            }
+            // Проверка столкновений пуль с врагами
+            for (let i = bullets.length - 1; i >= 0; i--) {
+                for (let j = enemies.length - 1; j >= 0; j--) {
+                    if (isColliding(bullets[i], enemies[j])) {
+                        enemies[j].health -= bullets[i].damage;
+                        bullets.splice(i, 1);
+
+                        if (enemies[j].health <= 0) {
+                            // Враг убит - создаем пачку патронов и добавляем очки
+                            createAmmoPack(enemies[j].x, enemies[j].y);
+                            enemies.splice(j, 1);
+                            score += 10 * currentDifficulty;
+                            scoreElement.textContent = `Счет: ${score}`;
+                        }
+                        break;
+                    }
+                }
+            }
+
+            // Проверка столкновений игрока с врагами
+            for (let enemy of enemies) {
+                if (isColliding(player, enemy)) {
+                    gameOver();
+                    return;
+                }
+
+                if (enemy.y > gameArea.y + gameArea.height) {
+                    enemies.splice(enemies.indexOf(enemy), 1);
+                    score = Math.max(0, score - 5);
+                    scoreElement.textContent = `Счет: ${score}`;
+                }
+            }
+
+            // Проверка подбора пачек патронов
+            for (let i = ammoPacks.length - 1; i >= 0; i--) {
+                if (isColliding(player, ammoPacks[i])) {
+                    ammo += ammoPacks[i].count;
+                    updateAmmoDisplay();
+                    ammoPacks.splice(i, 1);
+                }
+            }
+        }
+
+        // Обновление отображения патронов
+        function updateAmmoDisplay() {
+            ammoElement.textContent = `Патроны: ${ammo}`;
+        }
+
+        function isColliding(obj1, obj2) {
+            return obj1.x < obj2.x + obj2.width &&
+                obj1.x + obj1.width > obj2.x &&
+                obj1.y < obj2.y + obj2.height &&
+                obj1.y + obj1.height > obj2.y;
+        }
+
+        // Проверка и увеличение сложности
+        function checkDifficulty() {
+            const now = Date.now();
+            if (now - lastDifficultyIncrease > gameSettings.difficultyIncreaseInterval) {
+                currentDifficulty += 0.5;
+                lastDifficultyIncrease = now;
+                gameSettings.spawnRate = Math.min(0.05, gameSettings.spawnRate * 1.2);
+            }
+        }
+
+        function gameOver() {
+            gameRunning = false;
+            finalScoreElement.textContent = `Ваш счет: ${score}`;
+            gameOverMenu.style.display = 'block';
+
+            setTimeout(showActionDialog, 1000);
+        }
+
+        function showActionDialog() {
+            gameOverMenu.style.display = 'none';
+            actionDialog.style.display = 'block';
+
+            document.getElementById('playAgainBtn').onclick = function () {
+                window.location.reload();
+            };
+
+            document.getElementById('saveResultBtn').onclick = function () {
+                actionDialog.style.display = 'none';
+                showNameInputDialog();
+            };
+
+            document.getElementById('viewScoresBtn').onclick = function () {
+                window.location.href = '/Scores';
+            };
+
+            document.getElementById('mainMenuBtn').onclick = function () {
+                window.location.href = '/';
+            };
+        }
+
+        function showNameInputDialog() {
+            nameInputDialog.style.display = 'block';
+            document.getElementById('playerNameInput').value = '';
+            document.getElementById('playerNameInput').focus();
+
+            document.getElementById('saveScoreBtn').onclick = async function () {
+                const playerName = document.getElementById('playerNameInput').value.trim();
+                if (playerName) {
+                    try {
+                        const response = await saveScore(playerName, score);
+                        if (response.ok) {
+                            nameInputDialog.style.display = 'none';
+                            showActionDialog();
+                        } else {
+                            alert('Не удалось сохранить результат');
+                        }
+                    } catch (error) {
+                        console.error('Ошибка сохранения:', error);
+                        alert('Результат сохранен локально');
+                        nameInputDialog.style.display = 'none';
+                        showActionDialog();
+                    }
+                }
+            };
+
+            document.getElementById('cancelSaveBtn').onclick = function () {
+                nameInputDialog.style.display = 'none';
+                showActionDialog();
+            };
+        }
+
+        async function saveScore(name, score) {
+            try {
+                const response = await fetch('/api/scores', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        playerName: name,
+                        score: score
+                    })
+                });
+
+                if (!response.ok) throw new Error('Ошибка сервера');
+                return response;
+            } catch (error) {
+                console.error('Ошибка сохранения:', error);
+
+                // Fallback в localStorage
+                const scores = JSON.parse(localStorage.getItem('spaceInvadersScores') || '[]');
+
+                // Находим существующий результат (без учета регистра)
+                const existingIndex = scores.findIndex(s =>
+                    s.playerName.toLowerCase() === name.toLowerCase());
+
+                if (existingIndex >= 0) {
+                    // Обновляем если новый результат лучше
+                    if (score > scores[existingIndex].score) {
+                        scores[existingIndex] = {
+                            playerName: name,
+                            score: score,
+                            date: new Date().toISOString()
+                        };
+                    }
+                } else {
+                    // Добавляем новый результат
+                    scores.push({
+                        playerName: name,
+                        score: score,
+                        date: new Date().toISOString()
+                    });
+                }
+
+                // Сортируем и сохраняем топ-10
+                const topScores = scores
+                    .sort((a, b) => b.score - a.score)
+                    .slice(0, 10);
+
+                localStorage.setItem('spaceInvadersScores', JSON.stringify(topScores));
+                return { ok: true };
+            }
+        }
+
+        // Управление
+        const keys = {};
+        window.addEventListener('keydown', (e) => {
+            keys[e.key] = true;
+            if (e.key === ' ' || e.key === 'Spacebar') shoot();
+        });
+        window.addEventListener('keyup', (e) => {
+            keys[e.key] = false;
+        });
+
+        // Отрисовка игровых объектов
+        function drawGameObjects() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Рисуем игрока
+            ctx.save();
+            ctx.translate(player.x + player.width / 2, player.y + player.height / 2);
+            ctx.rotate(player.speedX * 0.1); // Наклон при движении
+            ctx.fillStyle = '#00FF00';
+            ctx.fillRect(-player.width / 2, -player.height / 2, player.width, player.height);
+            ctx.restore();
+
+            // Рисуем врагов 
+            ctx.fillStyle = '#FF0000';
+            enemies.forEach(enemy => {
+                // Добавляем скругление углов для лучшего вида
+                ctx.beginPath();
+                ctx.roundRect(enemy.x, enemy.y, enemy.width, enemy.height, 5);
+                ctx.fill();
+            });
+
+            // Рисуем пули
+            ctx.fillStyle = '#FFFF00';
+            bullets.forEach(bullet => {
+                ctx.fillRect(bullet.x, bullet.y, bullet.width, bullet.height);
+            });
+
+            // Рисуем пачки патронов
+            ammoPacks.forEach(pack => {
+                ctx.drawImage(ammoPackImg, pack.x, pack.y, pack.width, pack.height);
+            });
+        }
+
+        // Обновление игрового состояния
+        function updateGameState() {
+            // Управление игроком с плавным ускорением
+            if (Math.abs(player.speedX) < gameSettings.controllerDeadzone) {
+                player.speedX = 0;
+            }
+            if (keys['ArrowLeft']) {
+                player.speedX = Math.max(-player.maxSpeed, player.speedX - player.acceleration);
+            }
+            else if (keys['ArrowRight']) {
+                player.speedX = Math.min(player.maxSpeed, player.speedX + player.acceleration);
+            }
+            else {
+                // Плавное замедление при отпущенных клавишах
+                if (player.speedX > 0) {
+                    player.speedX = Math.max(0, player.speedX - player.deceleration);
+                } else if (player.speedX < 0) {
+                    player.speedX = Math.min(0, player.speedX + player.deceleration);
+                }
+            }
+
+            // Применение скорости к позиции
+            player.x += player.speedX;
+
+            // Ограничение позиции игрока
+            player.x = Math.max(player.minX, Math.min(player.maxX, player.x));
+
+            // Движение врагов
+            enemies.forEach(enemy => {
+                enemy.y += enemy.speed;
+            });
+
+            // Движение пуль
+            for (let i = bullets.length - 1; i >= 0; i--) {
+                bullets[i].y -= bullets[i].speed;
+                if (bullets[i].y < 0) bullets.splice(i, 1);
+            }
+
+            // Движение пачек патронов к игроку
+            moveAmmoPacks();
+
+            // Спавн врагов с учетом текущей сложности
+            if (Math.random() < gameSettings.spawnRate * currentDifficulty) {
+                createEnemy();
+            }
+
+            // Проверка сложности
+            checkDifficulty();
+        }
+
+        // Игровой цикл
+        function gameLoop() {
+            if (!gameRunning) return;
+
+            updateDifficulty(); // Обновляем сложность
+            updateGameState();
+            checkCollisions();
+            drawGameObjects();
+
+            requestAnimationFrame(gameLoop);
+        }
+
+        // Обработка изменения размера окна
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            initGameObjects();
+        }
+
+        // Инициализация игры
+        function initGame() {
+            initGameObjects();
+            playerLives = gameSettings.playerLives;
+            escapedEnemies = 0;
+            gameStartTime = Date.now();
+            updateLivesDisplay();
+            ammo = gameSettings.initialAmmo;
+            updateAmmoDisplay();
+        }
+        // При запуске игры вызываем initGame() вместо отдельных инициализаций
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+        initGame();
+        gameLoop();
+
+        // Инициализация патронов
+        ammo = gameSettings.initialAmmo;
+        updateAmmoDisplay();
+
+        gameLoop();
+    </script>
+</body>
+</html>
